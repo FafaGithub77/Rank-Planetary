@@ -8,16 +8,21 @@ on:
 
 jobs:
   build:
-    name: Build for ${{ matrix.os }}
+    name: Build for ${{ matrix.name }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         include:
-          - os: windows-latest
+          - name: Windows
+            os: windows-latest
             artifact_name: rank_planetary_gui_windows.zip
-          - os: macos-latest
-            artifact_name: rank_planetary_gui_macos.zip
+          - name: macOS Apple Silicon
+            os: macos-latest        # arm64
+            artifact_name: rank_planetary_gui_macos_apple_silicon.zip
+          - name: macOS Intel
+            os: macos-15-intel      # x86_64
+            artifact_name: rank_planetary_gui_macos_intel.zip
 
     steps:
       - name: Checkout code
