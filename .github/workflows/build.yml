@@ -37,11 +37,26 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install pyinstaller -r requirements.txt
+          pip install pyinstaller pillow -r requirements.txt
 
+      # Icona: metti nel repo icon.png (quadrata, meglio 1024x1024), oppure i file nativi
+      # icon.ico (Windows) / icon.icns (Mac). Con Pillow installato PyInstaller converte
+      # da solo il PNG nel formato giusto per ogni sistema.
       - name: Build with PyInstaller
+        shell: bash
         run: |
-          pyinstaller --noconfirm --onedir --windowed --name "rank_planetary_gui" rank_planetary_gui.py
+          ICON=""
+          if [ "$RUNNER_OS" = "Windows" ]; then CANDIDATES="icon.ico icon.png"; else CANDIDATES="icon.icns icon.png"; fi
+          for f in $CANDIDATES; do
+            if [ -f "$f" ]; then ICON="$f"; break; fi
+          done
+          if [ -n "$ICON" ]; then
+            echo "Uso l'icona: $ICON"
+            pyinstaller --noconfirm --onedir --windowed --name "rank_planetary_gui" --icon "$ICON" rank_planetary_gui.py
+          else
+            echo "::warning::Nessuna icona trovata (icon.png / icon.ico / icon.icns): uso quella di default"
+            pyinstaller --noconfirm --onedir --windowed --name "rank_planetary_gui" rank_planetary_gui.py
+          fi
 
       - name: Archive artifacts (Windows)
         if: runner.os == 'Windows'
